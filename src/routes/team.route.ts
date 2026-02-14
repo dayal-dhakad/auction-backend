@@ -7,22 +7,16 @@ import {
   deleteTeam,
 } from "../controllers/team.controller";
 
-import validate from "../middlewares/validate.middleware";
-import {
-  createTeamSchema,
-  updateTeamSchema,
-} from "../validations/team.validation";
-
 const router = express.Router();
 
-router.post("/create-team", validate(createTeamSchema), createTeam);
+router.post("/", createTeam);
 
-router.get("/get-all-teams", getTeams);
+router.get("/", getTeams);
 
-router.get("/get-team/:id", getTeamById);
+router.get("/:id", getTeamById);
 
-router.put("/update-team/:id", validate(updateTeamSchema), updateTeam);
+router.put("/:id", updateTeam);
 
-router.delete("/delete-team/:id", deleteTeam);
+router.delete("/:id", deleteTeam);
 
 export default router;

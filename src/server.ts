@@ -1,19 +1,28 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+
 import connectDB from "./config/db";
 import playerRoutes from "./routes/player.route";
 import teamRoutes from "./routes/team.route";
+import auctionRoutes from "./routes/auction.route";
 
-// connect database
-connectDB();
-const app = express();
-app.use(cors());
-app.use(express.json());
 dotenv.config();
+// connect database
+const app = express();
+app.use(
+  cors({
+    origin: "http://localhost:5173",
+    credentials: true,
+  }),
+);
 
-app.use("/api/players", playerRoutes);
+app.use(express.json());
+connectDB();
+
+app.use("/api/player", playerRoutes);
 app.use("/api/teams", teamRoutes);
+app.use("/api/auction", auctionRoutes);
 
 const PORT = process.env.PORT || 5000;
 

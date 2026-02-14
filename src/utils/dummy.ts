@@ -42,3 +42,42 @@ export const auctionPlayers = [
   { name: "Tarun", skillLevel: "medium", gender: "male" },
   { name: "Ravi", skillLevel: "beginner", gender: "male" },
 ];
+
+export const dummyTeams = [
+  {
+    _id: "team1",
+    teamName: "Smash Warriors",
+    remainingPurse: 1000,
+    players: [],
+  },
+  {
+    _id: "team2",
+    teamName: "Net Ninjas",
+    remainingPurse: 1000,
+    players: [],
+  },
+  {
+    _id: "team3",
+    teamName: "Shuttle Strikers",
+    remainingPurse: 1000,
+    players: [],
+  },
+  {
+    _id: "team4",
+    teamName: "Racket Raiders",
+    remainingPurse: 1000,
+    players: [],
+  },
+  {
+    _id: "team5",
+    teamName: "Court Kings",
+    remainingPurse: 1000,
+    players: [],
+  },
+  {
+    _id: "team6",
+    teamName: "Smash Titans",
+    remainingPurse: 1000,
+    players: [],
+  },
+];

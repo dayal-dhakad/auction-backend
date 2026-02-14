@@ -1,9 +1,40 @@
 import { Request, Response } from "express";
 import Team from "../models/team.model";
+import { TEAM_PURSE } from "../utils/constants";
+import { createTeamSchema } from "../validations/team.validation";
+import mongoose from "mongoose";
+import Player from "../models/player.model";
 
 export const createTeam = async (req: Request, res: Response) => {
   try {
-    const { teamName, captain, purse, logo } = req.body;
+    // ✅ Validate body
+    const parsed = createTeamSchema.parse(req.body);
+    const { teamName, captain, logo } = parsed;
+
+    // ✅ Validate captain ID format
+    if (!mongoose.Types.ObjectId.isValid(captain)) {
+      return res.status(400).json({
+        message: "Invalid captain ID",
+      });
+    }
+
+    // ✅ Check if captain exists
+    const captainPlayer = await Player.findById(captain);
+    if (!captainPlayer) {
+      return res.status(404).json({
+        message: "Captain player not found",
+      });
+    }
+
+    // ✅ Prevent duplicate team names
+    const existingTeam = await Team.findOne({ teamName });
+    if (existingTeam) {
+      return res.status(400).json({
+        message: "Team name already exists",
+      });
+    }
+
+    const purse = TEAM_PURSE;
 
     const team = await Team.create({
       teamName,
@@ -14,12 +45,25 @@ export const createTeam = async (req: Request, res: Response) => {
       players: [],
     });
 
-    res.status(201).json(team);
-  } catch (error) {
-    res.status(500).json({ message: "Error creating team", error });
+    return res.status(201).json({
+      success: true,
+      message: "Team created successfully",
+      team,
+    });
+  } catch (error: any) {
+    if (error.name === "ZodError") {
+      return res.status(400).json({
+        message: "Validation Error",
+        errors: error.errors,
+      });
+    }
+
+    return res.status(500).json({
+      message: "Error creating team",
+      error: error.message,
+    });
   }
 };
-
 export const getTeams = async (req: Request, res: Response) => {
   try {
     const teams = await Team.find().populate("players").populate("captain");

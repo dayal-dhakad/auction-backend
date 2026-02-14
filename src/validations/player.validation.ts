@@ -6,6 +6,7 @@ export const createPlayerSchema = z.object({
   skillLevel: z.enum(["elite", "strong", "medium", "beginner"]),
 
   gender: z.enum(["male", "female"]).describe("Gender must be male or female"),
+  image: z.string().url("Image must be a valid URL").trim().optional(),
 });
 
 // UPDATE PLAYER (all fields optional)

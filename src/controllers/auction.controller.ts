@@ -465,3 +465,112 @@ export const undoLastBid = async (
     });
   }
 };
+
+export const randomAssignPlayer = async (
+  req: Request<{ id: string }>,
+  res: Response,
+) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        message: "Invalid Auction ID",
+      });
+    }
+
+    const auction = await Auction.findById(id);
+
+    if (!auction || auction.status !== "LIVE") {
+      return res.status(400).json({
+        message: "Auction not live",
+      });
+    }
+
+    const player = await Player.findById(auction.currentPlayer);
+
+    if (!player) {
+      return res.status(404).json({
+        message: "Player not found",
+      });
+    }
+
+    // Fetch teams of this auction
+    let teams = await Team.find({ auction: id }).populate("players");
+
+    // Filter teams that can still take players
+    teams = teams.filter(
+      (team) =>
+        team.players.length < TEAM_PLAYER_LIMIT &&
+        team.remainingPurse >= player.basePrice,
+    );
+
+    if (teams.length === 0) {
+      return res.status(400).json({
+        message: "No eligible teams available",
+      });
+    }
+
+    if (player.gender === "female") {
+      const teamsWithoutGirl = teams.filter((team) => {
+        const hasGirl = team.players.some((p: any) => p.gender === "female");
+        return !hasGirl;
+      });
+
+      if (teamsWithoutGirl.length > 0) {
+        teams = teamsWithoutGirl;
+      }
+    }
+
+    let minPlayers = Math.min(...teams.map((team) => team.players.length));
+
+    teams = teams.filter((team) => team.players.length === minPlayers);
+
+    teams.sort((a, b) => b.remainingPurse - a.remainingPurse);
+
+    const selectedTeam = teams[0];
+
+    // Assign player
+    player.isSold = true;
+    player.soldPrice = player.basePrice;
+    player.team = selectedTeam._id;
+
+    await player.save();
+
+    // Update team
+    selectedTeam.players.push(player._id);
+    selectedTeam.remainingPurse -= player.basePrice;
+
+    await selectedTeam.save();
+
+    // Move auction forward
+    const nextIndex = auction.currentIndex + 1;
+
+    if (nextIndex >= auction.order.length) {
+      auction.status = "COMPLETED";
+      auction.currentPlayer = null;
+    } else {
+      auction.currentIndex = nextIndex;
+      auction.currentPlayer = auction.order[nextIndex];
+    }
+
+    auction.currentBid = 0;
+    auction.currentHighestTeam = null;
+    auction.bids = [];
+
+    await auction.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Player randomly assigned",
+      player,
+      team: selectedTeam,
+      auction,
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      message: "Error assigning player",
+      error: error.message,
+    });
+  }
+};

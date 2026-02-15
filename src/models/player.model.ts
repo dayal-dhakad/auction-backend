@@ -6,9 +6,11 @@ export interface IPlayer extends Document {
   basePrice: number;
   soldPrice?: number;
   isSold: boolean;
+  isCaptain: boolean;
   team?: mongoose.Types.ObjectId | null;
   image?: string;
   gender: "male" | "female";
+  auction: mongoose.Types.ObjectId;
 }
 
 const playerSchema = new Schema<IPlayer>(
@@ -40,6 +42,10 @@ const playerSchema = new Schema<IPlayer>(
       type: Boolean,
       default: false,
     },
+    isCaptain: {
+      type: Boolean,
+      default: false,
+    },
     team: {
       type: Schema.Types.ObjectId,
       ref: "Team",
@@ -47,6 +53,11 @@ const playerSchema = new Schema<IPlayer>(
     },
     image: {
       type: String,
+    },
+    auction: {
+      type: Schema.Types.ObjectId,
+      ref: "Auction",
+      required: true,
     },
   },
   {

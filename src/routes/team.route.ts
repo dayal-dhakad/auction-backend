@@ -9,9 +9,9 @@ import {
 
 const router = express.Router();
 
-router.post("/", createTeam);
+router.post("/:auctionId", createTeam);
 
-router.get("/", getTeams);
+router.get("/all/:auctionId", getTeams);
 
 router.get("/:id", getTeamById);
 

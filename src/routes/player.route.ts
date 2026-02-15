@@ -8,8 +8,8 @@ import {
 } from "../controllers/player.controller";
 const router = express.Router();
 
-router.post("/", createPlayer);
-router.get("/", getAllPlayers);
+router.post("/:auctionId", createPlayer);
+router.get("/all/:auctionId", getAllPlayers);
 router.get("/:id", getPlayerById);
 router.patch("/:id", updatePlayer);
 router.delete("/:id", deletePlayer);

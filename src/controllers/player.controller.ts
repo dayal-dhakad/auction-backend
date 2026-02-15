@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 export const createPlayer = async (req: Request, res: Response) => {
   try {
     const parsed = createPlayerSchema.parse(req.body);
-
+    const { auctionId } = req.params;
     const { name, skillLevel, gender, image } = parsed;
 
     const basePrice = BASE_PRICE_MAP[skillLevel];
@@ -21,11 +21,13 @@ export const createPlayer = async (req: Request, res: Response) => {
       gender,
       image,
       basePrice,
+      auction: auctionId,
     });
+    const populatedPlayer = await player.populate("auction");
 
     res.status(201).json({
       success: true,
-      player,
+      player: populatedPlayer,
     });
   } catch (error: any) {
     if (error.name === "ZodError") {
@@ -42,9 +44,23 @@ export const createPlayer = async (req: Request, res: Response) => {
   }
 };
 
-export const getAllPlayers = async (req: Request, res: Response) => {
+export const getAllPlayers = async (
+  req: Request<{ auctionId: string }>,
+  res: Response,
+) => {
   try {
-    const players = await Player.find();
+    const { auctionId } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(auctionId)) {
+      return res.status(400).json({
+        message: "Invalid auction ID",
+      });
+    }
+    const players = await Player.find({ auction: auctionId })
+      .populate("team")
+      .sort({
+        createdAt: 1,
+      });
     res.status(201).json({
       success: true,
       players,
@@ -57,7 +73,6 @@ export const getAllPlayers = async (req: Request, res: Response) => {
 export const getPlayerById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    console.log(id);
     const player = await Player.findById(id);
     res.status(201).json({
       success: true,

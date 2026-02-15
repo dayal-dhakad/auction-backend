@@ -4,7 +4,6 @@ import { ZodSchema } from "zod";
 const validate =
   (schema: ZodSchema) => (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.body);
       req.body = schema.parse(req.body);
       next();
     } catch (error: any) {

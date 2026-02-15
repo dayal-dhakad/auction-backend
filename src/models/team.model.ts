@@ -7,6 +7,7 @@ export interface ITeam extends Document {
   remainingPurse: number;
   players: mongoose.Types.ObjectId[];
   logo: string;
+  auction: mongoose.Types.ObjectId;
 }
 
 const teamSchema = new Schema<ITeam>(
@@ -38,6 +39,11 @@ const teamSchema = new Schema<ITeam>(
     ],
     logo: {
       type: String,
+    },
+    auction: {
+      type: Schema.Types.ObjectId,
+      ref: "Auction",
+      required: true,
     },
   },
   { timestamps: true },

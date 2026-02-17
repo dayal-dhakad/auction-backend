@@ -73,7 +73,7 @@ export const getAllPlayers = async (
 export const getPlayerById = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const player = await Player.findById(id);
+    const player = await Player.findById(id).populate("team");
     res.status(201).json({
       success: true,
       player,

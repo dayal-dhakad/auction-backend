@@ -10,9 +10,24 @@ import auctionRoutes from "./routes/auction.route";
 dotenv.config();
 // connect database
 const app = express();
+// app.use(
+//   cors({
+//     origin:
+//       process.env.APP_ENV === "production"
+//         ? "https://auction-frontend-navy.vercel.app"
+//         : "http://localhost:5173",
+//     credentials: true,
+//   }),
+// );
+
+const allowedOrigins = [
+  "https://auction-frontend-navy.vercel.app",
+  "http://localhost:5173",
+];
+
 app.use(
   cors({
-    origin: "https://auction-frontend-navy.vercel.app",
+    origin: allowedOrigins,
     credentials: true,
   }),
 );

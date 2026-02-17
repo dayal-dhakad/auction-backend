@@ -50,7 +50,8 @@ export const getAuctionById = async (req: Request, res: Response) => {
     const auction = await Auction.findById(id)
       .populate("order")
       .populate("currentPlayer")
-      .populate("bids.team", "teamName");
+      .populate("bids.team", "teamName")
+      .populate("currentHighestTeam");
     if (!auction) {
       res.status(400).json({ message: "Auction Not Found" });
     }
